@@ -14,9 +14,10 @@ return new class extends Migration
         Schema::create('team_users', function (Blueprint $table) {
             $table->foreignId('team_id')->constrained('teams')->cascadeOnDelete();
             $table->foreignId('user_id')->constrained('users')->cascadeOnDelete();
-            $table->string('name');
             $table->tinyInteger('role')->default(\App\Enums\TeamRoleEnum::Member);
             $table->timestamp('joined_at')->useCurrent();
+
+            $table->primary(['team_id', 'user_id']);
         });
     }
 

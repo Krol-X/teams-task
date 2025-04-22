@@ -22,4 +22,12 @@ class Team extends Model
     {
         return $this->hasMany(TeamLog::class);
     }
+
+    /** Пользователи в команде */
+    public function users()
+    {
+        return $this->belongsToMany(User::class, 'team_users')
+            ->using(TeamUser::class)
+            ->withPivot(['role', 'joined_at']);
+    }
 }

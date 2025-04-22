@@ -37,7 +37,7 @@ class User extends Authenticatable
     {
         return Str::of($this->name)
             ->explode(' ')
-            ->map(fn (string $name) => Str::of($name)->substr(0, 1))
+            ->map(fn(string $name) => Str::of($name)->substr(0, 1))
             ->implode('');
     }
 
@@ -51,5 +51,13 @@ class User extends Authenticatable
     public function teamInvitesReceived()
     {
         return $this->hasMany(TeamInvite::class, 'invited_id');
+    }
+
+    /** Команды, в которых состоит пользователь */
+    public function teams()
+    {
+        return $this->belongsToMany(Team::class, 'team_users')
+            ->using(TeamUser::class)
+            ->withPivot(['role', 'joined_at']);
     }
 }
