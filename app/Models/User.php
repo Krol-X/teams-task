@@ -44,12 +44,12 @@ class User extends Authenticatable
     /** Отправленные приглашения в команду */
     public function teamInvitesSent()
     {
-        return $this->hasMany(TeamInvitie::class, 'inviter_id');
+        return $this->hasMany(TeamInvite::class, 'inviter_id');
     }
 
     /** Полученные приглашения в команду */
     public function teamInvitesReceived()
     {
-        return $this->hasMany(TeamInvitie::class, 'invited_id');
+        return $this->hasMany(TeamInvite::class, 'invited_id');
     }
 }

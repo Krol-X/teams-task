@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 
 /** Приглашение в команду */
-class TeamInvitie extends Model
+class TeamInvite extends Model
 {
     public $timestamps = false;
 

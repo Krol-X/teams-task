@@ -14,7 +14,7 @@ class Team extends Model
     /** Приглашения в команду */
     public function invitations()
     {
-        return $this->hasMany(TeamInvitie::class);
+        return $this->hasMany(TeamInvite::class);
     }
 
     /** История событий команды */
