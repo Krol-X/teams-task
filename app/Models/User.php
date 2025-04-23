@@ -3,6 +3,7 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use App\Enums\TeamRoleEnum;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -59,5 +60,10 @@ class User extends Authenticatable
         return $this->belongsToMany(Team::class, 'team_users')
             ->using(TeamUser::class)
             ->withPivot(['role', 'joined_at']);
+    }
+
+    public function hasRoleInTeam(Team $team, TeamRoleEnum $role): bool
+    {
+        return $team->getUser($this)?->pivot?->role == $role;
     }
 }

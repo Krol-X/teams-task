@@ -12,7 +12,7 @@ interface TeamInterface
     /** Создать новую команду */
     public function addTeam(TeamData $data): Team;
 
-    /** Получить команду по идентификатору */
+    /** Получить информацию о команде по идентификатору */
     public function getTeam(int $id): Team|null;
 
     /** Получить все команды (без пагинации) */

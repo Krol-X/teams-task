@@ -9,9 +9,13 @@ use App\Interfaces\Services\TeamLogInterface;
 use App\Interfaces\Services\TeamUserInterface;
 use App\Models\Team;
 use App\Models\User;
+use App\Traits\PolicyTestTrait;
 
+// todo: переделать под актуальные политики
 final class TeamUserService implements TeamUserInterface
 {
+    use PolicyTestTrait;
+
     public function __construct(
         public TeamLogInterface $teamLogService
     )
@@ -21,7 +25,7 @@ final class TeamUserService implements TeamUserInterface
 
     public function joinTeam(Team $team, User|int $user, TeamRoleEnum $role): bool
     {
-        if ($team->users()->isAttached($user)) {
+        if ($team->users->contains($user)) {
             return false;
         }
         $team->users()->attach($user);
@@ -53,7 +57,7 @@ final class TeamUserService implements TeamUserInterface
 
     public function setUserRole(Team $team, User|int $user, $newRole, User|int|null $initiator = null): void
     {
-        $teamUser = $team->users()->find($user);
+        $teamUser = $team->getUser($user);
 
         if ($teamUser) {
             /** @var User $teamUser */

@@ -30,4 +30,17 @@ class Team extends Model
             ->using(TeamUser::class)
             ->withPivot(['role', 'joined_at']);
     }
+
+    /** Получить пользователя из команды */
+    public function getUser(User|int $user): TeamUser|null
+    {
+        $teamUser = $this->users()->find($user);
+
+        return $teamUser;
+    }
+
+    public function hasUser(User|int $user): bool
+    {
+        return $this->getUser($user) !== null;
+    }
 }
