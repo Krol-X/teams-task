@@ -3,24 +3,40 @@
 namespace App\Services;
 
 use App\DTO\TeamData;
+use App\DTO\TeamLogData;
+use App\Enums\TeamLogEventEnum;
+use App\Enums\TeamRoleEnum;
 use App\Interfaces\Services\TeamInterface;
+use App\Interfaces\Services\TeamLogInterface;
 use App\Interfaces\Services\TeamUserInterface;
 use App\Models\Team;
+use App\Models\User;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 
 final class TeamService implements TeamInterface
 {
-    public function __construct(public TeamUserInterface $teamUserService)
+    public function __construct(
+        public TeamUserInterface $teamUserService,
+        public TeamLogInterface  $teamLogService
+    )
     {
     }
 
     public function addTeam(TeamData $data): Team
     {
+        /** @var User $currentUser */
+        $currentUser = Auth::user();
+        // todo: check User auth, refactor
+
         $team = new Team((array)$data);
         $team->save();
 
-        $this->teamUserService->joinTeam($team, Auth::user());
+        $this->teamLogService->addTeamLogEvent(
+            new TeamLogData($team, $currentUser, TeamLogEventEnum::TeamCreated, (array)$data)
+        );
+
+        $this->teamUserService->joinTeam($team, $currentUser, TeamRoleEnum::Admin);
 
         return $team;
     }
@@ -39,8 +55,16 @@ final class TeamService implements TeamInterface
 
     public function updTeam(int $id, TeamData $data): Team|null
     {
+        /** @var User $currentUser */
+        $currentUser = Auth::user();
+        // todo: check User auth, refactor
+
         $team = $this->getTeam($id);
         $team?->update((array)$data);
+
+        $this->teamLogService->addTeamLogEvent(
+            new TeamLogData($team, $currentUser, TeamLogEventEnum::TeamProfileUpdated, (array)$data)
+        );
 
         return $team;
     }

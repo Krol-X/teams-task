@@ -3,13 +3,13 @@
 namespace App\Enums;
 
 /** Тип события в логе команды */
-enum HistoryEventEnum: int
+enum TeamLogEventEnum: int
 {
     case Uncategorized = 0;  // Без категории
 
     // 1–9: события, связанные с командой
-    case TeamCreated = 1;        // Создание команды
-    case TeamProfileEdited = 2;  // Изменение профиля
+    case TeamCreated = 1;         // Создание команды
+    case TeamProfileUpdated = 2;  // Обновление профиля команды
 
     // 10–19: управление участниками
     case UserInvited = 10;  // Приглашение пользователя

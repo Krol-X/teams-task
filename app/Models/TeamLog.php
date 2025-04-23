@@ -12,7 +12,7 @@ class TeamLog extends Model
     protected $fillable = ['team_id', 'user_id', 'event_type', 'data'];
 
     protected $casts = [
-        'event' => \App\Enums\HistoryEventEnum::class,
+        'event' => \App\Enums\TeamLogEventEnum::class,
         'data' => 'array',
     ];
 

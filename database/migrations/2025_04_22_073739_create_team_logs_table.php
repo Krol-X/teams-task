@@ -14,7 +14,7 @@ return new class extends Migration {
             $table->id();
             $table->foreignId('team_id')->constrained('teams')->cascadeOnDelete();
             $table->foreignId('user_id')->nullable(); /* todo: уточнить что делать с логами удалённых пользователей */
-            $table->tinyInteger('event_type')->default(\App\Enums\HistoryEventEnum::Uncategorized);
+            $table->tinyInteger('event_type')->default(\App\Enums\TeamLogEventEnum::Uncategorized);
             $table->json('data')->nullable();
             $table->timestamp('created_at')->useCurrent();
         });
