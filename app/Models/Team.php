@@ -33,6 +33,16 @@ class Team extends Model
             ->withPivot(['role', 'joined_at']);
     }
 
+    /** Получить команду, если аргумент team_id */
+    public function getTeam(Team|int $team)
+    {
+        if (is_int($team)) {
+            $team = $this->find($team) ?? throw new AppException(AppExceptionsEnum::TeamNotFound->value);
+        }
+
+        return $team;
+    }
+
     /** Получить пользователя из команды */
     public function getUser(User|int $user): User
     {

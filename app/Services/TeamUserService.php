@@ -28,9 +28,7 @@ final class TeamUserService implements TeamUserInterface
 
     public function join(Team|int $team, TeamRoleEnum $role): void
     {
-        if (is_int($team)) {
-            $team = $this->teamService->get($team);
-        }
+        $team = Team::getTeam($team);
 
         $this->testPolicy('joinTeam', $team);
 
@@ -46,9 +44,7 @@ final class TeamUserService implements TeamUserInterface
 
     public function leave(Team|int $team): void
     {
-        if (is_int($team)) {
-            $team = $this->teamService->get($team);
-        }
+        $team = Team::getTeam($team);
 
         $this->testPolicy('leaveTeam', $team);
 
@@ -68,9 +64,7 @@ final class TeamUserService implements TeamUserInterface
 
     public function remove(Team|int $team, User|int $user): void
     {
-        if (is_int($team)) {
-            $team = $this->teamService->get($team);
-        }
+        $team = Team::getTeam($team);
 
         $this->testPolicy('removeUserFromTeam', [$team, $user]);
 
@@ -87,9 +81,7 @@ final class TeamUserService implements TeamUserInterface
 
     public function changeRole(Team|int $team, User|int $user, TeamRoleEnum|int $newRole): void
     {
-        if (is_int($team)) {
-            $team = $this->teamService->get($team);
-        }
+        $team = Team::getTeam($team);
 
         $this->testPolicy('setUserRole', [$team, $user]);
 

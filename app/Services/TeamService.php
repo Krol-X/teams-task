@@ -4,10 +4,8 @@ namespace App\Services;
 
 use App\DTO\TeamData;
 use App\DTO\TeamLogData;
-use App\Enums\AppExceptionsEnum;
 use App\Enums\TeamLogEventEnum;
 use App\Enums\TeamRoleEnum;
-use App\Exceptions\AppException;
 use App\Interfaces\Services\TeamInterface;
 use App\Interfaces\Services\TeamLogInterface;
 use App\Interfaces\Services\TeamUserInterface;
@@ -49,7 +47,7 @@ final class TeamService implements TeamInterface
 
     public function get(int $id): Team
     {
-        $team = Team::find($id) ?? throw new AppException(AppExceptionsEnum::TeamNotFound->value);
+        $team = Team::getTeam($id);
 
         $this->testPolicy('getUserTeam', $team);
 
@@ -68,9 +66,7 @@ final class TeamService implements TeamInterface
 
     public function update(Team|int $team, TeamData $data): Team
     {
-        if (is_int($team)) {
-            $team = $this->get($team);
-        }
+        $team = Team::getTeam($team);
 
         $this->testPolicy('updTeam', $team);
 
@@ -88,9 +84,7 @@ final class TeamService implements TeamInterface
 
     public function delete(Team|int $team): void
     {
-        if (is_int($team)) {
-            $team = $this->get($team);
-        }
+        $team = Team::getTeam($team);
 
         $this->testPolicy('delTeam', $team);
 
