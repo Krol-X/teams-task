@@ -26,10 +26,10 @@ final class TeamUserService implements TeamUserInterface
     }
 
 
-    public function joinTeam(Team|int $team, TeamRoleEnum $role): void
+    public function join(Team|int $team, TeamRoleEnum $role): void
     {
         if (is_int($team)) {
-            $team = $this->teamService->getUserTeam($team);
+            $team = $this->teamService->get($team);
         }
 
         $this->testPolicy('joinTeam', $team);
@@ -39,15 +39,15 @@ final class TeamUserService implements TeamUserInterface
 
         $team->users()->attach($currentUser);
 
-        $this->teamLogService->addTeamLogEvent(
+        $this->teamLogService->log(
             new TeamLogData($team, $currentUser, TeamLogEventEnum::UserJoined)
         );
     }
 
-    public function leaveTeam(Team|int $team): void
+    public function leave(Team|int $team): void
     {
         if (is_int($team)) {
-            $team = $this->teamService->getUserTeam($team);
+            $team = $this->teamService->get($team);
         }
 
         $this->testPolicy('leaveTeam', $team);
@@ -61,15 +61,15 @@ final class TeamUserService implements TeamUserInterface
 
         $team->users()->detach($currentUser);
 
-        $this->teamLogService->addTeamLogEvent(
+        $this->teamLogService->log(
             new TeamLogData($team, $currentUser, TeamLogEventEnum::UserLeft)
         );
     }
 
-    public function removeUserFromTeam(Team|int $team, User|int $user): void
+    public function remove(Team|int $team, User|int $user): void
     {
         if (is_int($team)) {
-            $team = $this->teamService->getUserTeam($team);
+            $team = $this->teamService->get($team);
         }
 
         $this->testPolicy('removeUserFromTeam', [$team, $user]);
@@ -80,15 +80,15 @@ final class TeamUserService implements TeamUserInterface
         $teamUser = $team->getUser($user);
         $team->users()->detach($teamUser);
 
-        $this->teamLogService->addTeamLogEvent(
+        $this->teamLogService->log(
             new TeamLogData($team, $teamUser, TeamLogEventEnum::UserRemoved, ['initiator' => $currentUser])
         );
     }
 
-    public function setUserRole(Team|int $team, User|int $user, TeamRoleEnum|int $newRole): void
+    public function changeRole(Team|int $team, User|int $user, TeamRoleEnum|int $newRole): void
     {
         if (is_int($team)) {
-            $team = $this->teamService->getUserTeam($team);
+            $team = $this->teamService->get($team);
         }
 
         $this->testPolicy('setUserRole', [$team, $user]);
@@ -103,7 +103,7 @@ final class TeamUserService implements TeamUserInterface
         $teamUser = $team->getUser($user);
         $teamUser->update(['role' => $newRole]);
 
-        $this->teamLogService->addTeamLogEvent(
+        $this->teamLogService->log(
             new TeamLogData($team, $teamUser, TeamLogEventEnum::RoleChanged, ['initiator' => $currentUser])
         );
     }

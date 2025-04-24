@@ -10,8 +10,8 @@ use Illuminate\Database\Eloquent\Collection;
 interface TeamLogInterface
 {
     /** Логировать событие команды */
-    public function addTeamLogEvent(TeamLogData $data): void;
+    public function log(TeamLogData $data): void;
 
     /** Получить лог команды (без пагинации) */
-    public function getTeamLog(Team|int $team): Collection;
+    public function all(Team|int $team): Collection;
 }

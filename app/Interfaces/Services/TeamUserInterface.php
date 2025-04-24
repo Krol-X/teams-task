@@ -10,14 +10,14 @@ use App\Models\User;
 interface TeamUserInterface
 {
     /** Присоединиться к команде */
-    public function joinTeam(Team|int $team, TeamRoleEnum $role): void;
+    public function join(Team|int $team, TeamRoleEnum $role): void;
 
     /** Покинуть команду */
-    public function leaveTeam(Team|int $team): void;
+    public function leave(Team|int $team): void;
 
     /** Удалить пользователя из команды */
-    public function removeUserFromTeam(Team|int $team, User|int $user): void;
+    public function remove(Team|int $team, User|int $user): void;
 
     /** Назначить роль пользователю */
-    public function setUserRole(Team|int $team, User|int $user, TeamRoleEnum|int $newRole): void;
+    public function changeRole(Team|int $team, User|int $user, TeamRoleEnum|int $newRole): void;
 }

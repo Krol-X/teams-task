@@ -28,7 +28,7 @@ final class TeamService implements TeamInterface
     {
     }
 
-    public function addTeam(TeamData $data): Team
+    public function create(TeamData $data): Team
     {
         $this->testPolicy('addTeam');
 
@@ -38,16 +38,16 @@ final class TeamService implements TeamInterface
         $team = new Team((array)$data);
         $team->save();
 
-        $this->teamLogService->addTeamLogEvent(
+        $this->teamLogService->log(
             new TeamLogData($team, $currentUser, TeamLogEventEnum::TeamCreated, (array)$data)
         );
 
-        $this->teamUserService->joinTeam($team, TeamRoleEnum::Admin);
+        $this->teamUserService->join($team, TeamRoleEnum::Admin);
 
         return $team;
     }
 
-    public function getUserTeam(int $id): Team
+    public function get(int $id): Team
     {
         $team = Team::find($id) ?? throw new AppException(AppExceptionsEnum::TeamNotFound->value);
 
@@ -56,7 +56,7 @@ final class TeamService implements TeamInterface
         return $team;
     }
 
-    public function getUserTeams(): Collection
+    public function all(): Collection
     {
         $this->testPolicy('getUserTeams');
 
@@ -66,10 +66,10 @@ final class TeamService implements TeamInterface
         return $currentUser->teams();
     }
 
-    public function updTeam(Team|int $team, TeamData $data): Team
+    public function update(Team|int $team, TeamData $data): Team
     {
         if (is_int($team)) {
-            $team = $this->getUserTeam($team);
+            $team = $this->get($team);
         }
 
         $this->testPolicy('updTeam', $team);
@@ -79,17 +79,17 @@ final class TeamService implements TeamInterface
         /** @var User $currentUser */
         $currentUser = Auth::user();
 
-        $this->teamLogService->addTeamLogEvent(
+        $this->teamLogService->log(
             new TeamLogData($team, $currentUser, TeamLogEventEnum::TeamProfileUpdated, (array)$data)
         );
 
         return $team;
     }
 
-    public function delTeam(Team|int $team): void
+    public function delete(Team|int $team): void
     {
         if (is_int($team)) {
-            $team = $this->getUserTeam($team);
+            $team = $this->get($team);
         }
 
         $this->testPolicy('delTeam', $team);

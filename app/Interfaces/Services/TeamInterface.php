@@ -10,17 +10,17 @@ use Illuminate\Support\Collection;
 interface TeamInterface
 {
     /** Создать новую команду */
-    public function addTeam(TeamData $data): Team;
+    public function create(TeamData $data): Team;
 
     /** Получить информацию о команде по идентификатору */
-    public function getUserTeam(int $id): Team;
+    public function get(int $id): Team;
 
     /** Получить все команды пользователя (без пагинации) */
-    public function getUserTeams(): Collection;
+    public function all(): Collection;
 
     /** Обновить команду */
-    public function updTeam(Team|int $team, TeamData $data): Team;
+    public function update(Team|int $team, TeamData $data): Team;
 
     /** Удалить команду */
-    public function delTeam(Team|int $team): void;
+    public function delete(Team|int $team): void;
 }

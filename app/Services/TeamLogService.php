@@ -10,14 +10,14 @@ use Illuminate\Database\Eloquent\Collection;
 
 final class TeamLogService implements TeamLogInterface
 {
-    public function addTeamLogEvent(TeamLogData $data): void
+    public function log(TeamLogData $data): void
     {
         // todo: исправить сохранение
         $logEvent = new TeamLog((array)$data);
         $logEvent->save();
     }
 
-    public function getTeamLog(Team|int $team): Collection
+    public function all(Team|int $team): Collection
     {
         return TeamLog::where('team_id', $team)->get();
     }
