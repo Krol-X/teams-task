@@ -2,21 +2,21 @@
 
 namespace App\Traits;
 
-use App\Exceptions\PolicyResultException;
+use App\Exceptions\AppException;
 use Illuminate\Support\Facades\Gate;
 
 /** Обработка ошибок политик в исключении */
 trait PolicyTestTrait
 {
     /**
-     * @throws PolicyResultException
+     * @throws AppException
      */
-    private function testPolicy(string $policy, $class): void
+    private function testPolicy(string $policy, mixed $args = []): void
     {
-        $canCreate = Gate::inspect($policy, $class);
+        $canCreate = Gate::inspect($policy, $args);
 
         if ($canCreate->denied()) {
-            throw new PolicyResultException($canCreate->status());
+            throw new AppException($canCreate->status());
         }
     }
 }

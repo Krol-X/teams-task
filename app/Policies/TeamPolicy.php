@@ -2,7 +2,7 @@
 
 namespace App\Policies;
 
-use App\Enums\PolicyResultEnum;
+use App\Enums\AppExceptionsEnum;
 use App\Enums\TeamRoleEnum;
 use App\Models\Team;
 use App\Models\User;
@@ -13,75 +13,90 @@ final class TeamPolicy
 {
     use AuthPolicyTrait;
 
+    // TeamService
+
     /** Возможность создавать новую команду */
-    public function create(User $user): bool
+    public function addTeam(User $currentUser): Response
     {
-        return true; /* любой авторизованный пользователь */
+        return Response::allow(); /* любой авторизованный пользователь */
     }
 
-    /** Возможность просмотра информации о команде */
-    public function view(User $user, Team $team): Response
+    /** Возможность просмотра подробной информации о команде */
+    public function getUserTeam(User $currentUser, Team $team): Response
     {
         return policyResponseFrom(
-            $team->hasUser($user), PolicyResultEnum::UserNotInTeam->value
+            $team->hasUser($currentUser), AppExceptionsEnum::UserNotInTeam->value
         );
+    }
+
+    /** Возможность просмотра команд, в которых состоит пользователь */
+    public function getUserTeams(User $currentUser, Team $team): Response
+    {
+        return Response::allow(); /* любой авторизованный пользователь */
     }
 
     /** Возможность обновления информации о команде */
-    public function update(User $user, Team $team): Response
-    {
-        return $this->testAdmin($user, $team);
-    }
-
-    /** Возможность удаления команды */
-    public function delete(Team $team): Response
+    public function updTeam(User $currentUser, Team $team): Response
     {
         return policyResponseFrom(
-            $team->users()->count() == 0, PolicyResultEnum::TeamHasMembersToRemove->value
+            $this->isAdmin($currentUser, $team), AppExceptionsEnum::NotAdmin->value
         );
     }
 
-    /** Возможность приглашения другого пользователя */
-    public function invite(User $user, Team $team): Response
+    /** Возможность удаления команды */
+    public function delTeam(User $currentUser, Team $team): Response
     {
-        return $this->testAdmin($user, $team);
+        return policyResponseFrom(
+            $team->users()->count() == 0, AppExceptionsEnum::TeamHasMembersToRemove->value
+        );
     }
 
-    /** Возможность изменения роли другого пользователя */
-    public function changeUserRole(User $user, Team $team): Response
-    {
-        return $this->testAdmin($user, $team);
-    }
+    // TeamUserService
 
-    /** Возможность просмотра логов команды */
-    public function viewLogs(User $user, Team $team): Response
+    /** Возможность присоединения к команде */
+    public function joinTeam(User $currentUser, Team $team): Response
     {
-        return $this->testAdmin($user, $team);
+        return policyResponseFrom(
+            !$team->hasUser($currentUser), AppExceptionsEnum::UserAlwaysInTeam->value
+        );
     }
 
     /** Возможность покинуть команду */
-    public function leave(User $user, Team $team): Response
+    public function leaveTeam(User $currentUser, Team $team): Response
     {
-        $result = $this->testAdmin($user, $team);
+        $teamUser = $team->getUser($currentUser);
 
-        if ($result->allowed()) {
-            return $this->canAdminLeave($team);
+        $isAdmin = $teamUser->pivot?->role == TeamRoleEnum::Admin;
+
+        if ($isAdmin) {
+            /* пользователь один в команде? */
+            if ($team->users()->count() > 1) {
+                return Response::denyWithStatus(AppExceptionsEnum::LastAdminCannotLeave->value);
+            }
+
+            /* пользователь единственный админ? */
+            $adminsCount = $team->users()->wherePivot('role', TeamRoleEnum::Admin)->count();
+            if ($adminsCount == 1) {
+                return Response::denyWithStatus(AppExceptionsEnum::LastAdminCannotLeave->value);
+            }
         }
 
-        return $result;
+        return Response::allow();
     }
 
-    /** Возможность выхода администратора из команды */
-    public function canAdminLeave(Team $team): Response
+    /** Возможность удаления пользователя из команды */
+    public function removeUserFromTeam(User $currentUser, Team $team, User $user): Response
     {
-        if ($team->users()->count() == 1) {
-            return Response::allow();
-        }
-
-        $admins = $team->users()->wherePivot('role', TeamRoleEnum::Admin)->count();
-
         return policyResponseFrom(
-            $admins > 1, PolicyResultEnum::LastAdminCannotLeave->value
+            $this->isAdmin($currentUser, $team), AppExceptionsEnum::NotAdmin->value
+        );
+    }
+
+    /** Возможность изменения роли другого пользователя */
+    public function changeUserRole(User $currentUser, Team $team): Response
+    {
+        return policyResponseFrom(
+            $this->isAdmin($currentUser, $team), AppExceptionsEnum::NotAdmin->value
         );
     }
 
@@ -89,14 +104,5 @@ final class TeamPolicy
     private function isAdmin(User $user, Team $team): bool
     {
         return $user->hasRoleInTeam($team, TeamRoleEnum::Admin);
-    }
-
-    /** Вызвать исключение, если пользователь не администратор в команде */
-    private function testAdmin(User $user, Team $team): Response
-    {
-        if (!$this->isAdmin($user, $team)) {
-            return Response::denyWithStatus(PolicyResultEnum::NotAdmin->value);
-        }
-        return Response::allow();
     }
 }

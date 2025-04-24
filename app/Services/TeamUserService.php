@@ -3,69 +3,108 @@
 namespace App\Services;
 
 use App\DTO\TeamLogData;
+use App\Enums\AppExceptionsEnum;
 use App\Enums\TeamLogEventEnum;
 use App\Enums\TeamRoleEnum;
+use App\Exceptions\AppException;
 use App\Interfaces\Services\TeamLogInterface;
 use App\Interfaces\Services\TeamUserInterface;
 use App\Models\Team;
 use App\Models\User;
 use App\Traits\PolicyTestTrait;
+use Illuminate\Support\Facades\Auth;
 
-// todo: переделать под актуальные политики
 final class TeamUserService implements TeamUserInterface
 {
     use PolicyTestTrait;
 
     public function __construct(
+        public TeamService      $teamService,
         public TeamLogInterface $teamLogService
     )
     {
     }
 
 
-    public function joinTeam(Team $team, User|int $user, TeamRoleEnum $role): bool
+    public function joinTeam(Team|int $team, TeamRoleEnum $role): void
     {
-        if ($team->users->contains($user)) {
-            return false;
+        if (is_int($team)) {
+            $team = $this->teamService->getUserTeam($team);
         }
-        $team->users()->attach($user);
+
+        $this->testPolicy('joinTeam', $team);
+
+        /** @var User $currentUser */
+        $currentUser = Auth::user();
+
+        $team->users()->attach($currentUser);
 
         $this->teamLogService->addTeamLogEvent(
-            new TeamLogData($team, $user, TeamLogEventEnum::UserJoined)
-        );
-
-        return true;
-    }
-
-    public function leaveTeam(Team $team, User|int $user): void
-    {
-        $team->users()->detach($user);
-
-        $this->teamLogService->addTeamLogEvent(
-            new TeamLogData($team, $user, TeamLogEventEnum::UserLeft)
+            new TeamLogData($team, $currentUser, TeamLogEventEnum::UserJoined)
         );
     }
 
-    public function removeUserFromTeam(Team $team, User|int $user, User|int|null $initiator = null): void
+    public function leaveTeam(Team|int $team): void
     {
-        $team->users()->detach($user);
+        if (is_int($team)) {
+            $team = $this->teamService->getUserTeam($team);
+        }
+
+        $this->testPolicy('leaveTeam', $team);
+
+        /** @var User $currentUser */
+        $currentUser = Auth::user();
+
+        if (!$team->hasUser($currentUser)) {
+            throw new AppException(AppExceptionsEnum::UserNotInTeam->value);
+        }
+
+        $team->users()->detach($currentUser);
 
         $this->teamLogService->addTeamLogEvent(
-            new TeamLogData($team, $user, TeamLogEventEnum::UserRemoved, ['initiator' => $initiator])
+            new TeamLogData($team, $currentUser, TeamLogEventEnum::UserLeft)
         );
     }
 
-    public function setUserRole(Team $team, User|int $user, $newRole, User|int|null $initiator = null): void
+    public function removeUserFromTeam(Team|int $team, User|int $user): void
     {
+        if (is_int($team)) {
+            $team = $this->teamService->getUserTeam($team);
+        }
+
+        $this->testPolicy('removeUserFromTeam', [$team, $user]);
+
+        /** @var User $currentUser */
+        $currentUser = Auth::user();
+
         $teamUser = $team->getUser($user);
+        $team->users()->detach($teamUser);
 
-        if ($teamUser) {
-            /** @var User $teamUser */
-            $teamUser->update(['role' => $newRole]);
+        $this->teamLogService->addTeamLogEvent(
+            new TeamLogData($team, $teamUser, TeamLogEventEnum::UserRemoved, ['initiator' => $currentUser])
+        );
+    }
 
-            $this->teamLogService->addTeamLogEvent(
-                new TeamLogData($team, $teamUser, TeamLogEventEnum::RoleChanged, ['initiator' => $initiator])
-            );
+    public function setUserRole(Team|int $team, User|int $user, TeamRoleEnum|int $newRole): void
+    {
+        if (is_int($team)) {
+            $team = $this->teamService->getUserTeam($team);
         }
+
+        $this->testPolicy('setUserRole', [$team, $user]);
+
+        /** @var User $currentUser */
+        $currentUser = Auth::user();
+
+        if (!$currentUser->hasRoleInTeam($team, TeamRoleEnum::Admin)) {
+            throw new AppException(AppExceptionsEnum::NotAdmin->value);
+        }
+
+        $teamUser = $team->getUser($user);
+        $teamUser->update(['role' => $newRole]);
+
+        $this->teamLogService->addTeamLogEvent(
+            new TeamLogData($team, $teamUser, TeamLogEventEnum::RoleChanged, ['initiator' => $currentUser])
+        );
     }
 }

@@ -13,14 +13,14 @@ interface TeamInterface
     public function addTeam(TeamData $data): Team;
 
     /** Получить информацию о команде по идентификатору */
-    public function getTeam(int $id): Team|null;
+    public function getUserTeam(int $id): Team;
 
-    /** Получить все команды (без пагинации) */
-    public function getTeams(): Collection;
+    /** Получить все команды пользователя (без пагинации) */
+    public function getUserTeams(): Collection;
 
     /** Обновить команду */
-    public function updTeam(int $id, TeamData $data): Team|null;
+    public function updTeam(Team|int $team, TeamData $data): Team;
 
     /** Удалить команду */
-    public function delTeam(int $id): void;
+    public function delTeam(Team|int $team): void;
 }

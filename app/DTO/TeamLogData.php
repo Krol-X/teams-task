@@ -10,7 +10,10 @@ use App\Models\User;
 final readonly class TeamLogData
 {
     /**
-     * @param string $name Название команды
+     * @param Team $team Команда
+     * @param User $user Пользователь (инициатор действия)
+     * @param TeamLogEventEnum $eventType Тип события
+     * @param array|null $data Дополнительные данные
      */
     public function __construct(
         public Team             $team,

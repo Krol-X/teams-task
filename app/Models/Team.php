@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Enums\AppExceptionsEnum;
+use App\Exceptions\AppException;
 use Illuminate\Database\Eloquent\Model;
 
 /** Команда */
@@ -32,15 +34,19 @@ class Team extends Model
     }
 
     /** Получить пользователя из команды */
-    public function getUser(User|int $user): TeamUser|null
+    public function getUser(User|int $user): User
     {
         $teamUser = $this->users()->find($user);
+
+        if (is_null($teamUser)) {
+            throw new AppException(AppExceptionsEnum::UserNotInTeam->value);
+        }
 
         return $teamUser;
     }
 
     public function hasUser(User|int $user): bool
     {
-        return $this->getUser($user) !== null;
+        return $this->users->contains($user);
     }
 }
