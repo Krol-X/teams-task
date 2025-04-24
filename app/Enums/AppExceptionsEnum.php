@@ -11,6 +11,9 @@ enum AppExceptionsEnum: int
     case TeamHasMembersToRemove = 4;
     case UserAlwaysInTeam = 5;
     case TeamNotFound = 6;
+    case InvitationAlreadyAccepted = 7;
+    case InvitationAlreadyRejected = 8;
+    case NotInvitationOwner = 9;
 
     public function message(): string
     {
@@ -21,7 +24,10 @@ enum AppExceptionsEnum: int
             self::LastAdminCannotLeave => 'Последний администратор не может покинуть команду',
             self::TeamHasMembersToRemove => 'Команда имеет пользователей, удаление невозможно',
             self::UserAlwaysInTeam => 'Пользователь уже в команде',
-            self::TeamNotFound => 'Команда не найдена'
+            self::TeamNotFound => 'Команда не найдена',
+            self::InvitationAlreadyAccepted => 'Приглашение уже принято',
+            self::InvitationAlreadyRejected => 'Приглашение уже отклонено',
+            self::NotInvitationOwner => 'Вы не являетесь владельцем этого приглашения'
         };
     }
 }

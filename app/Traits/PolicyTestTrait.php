@@ -11,12 +11,12 @@ trait PolicyTestTrait
     /**
      * @throws AppException
      */
-    private function testPolicy(string $policy, mixed $args = []): void
+    private function testPolicy(string $policy, mixed $args): void
     {
-        $canCreate = Gate::inspect($policy, $args);
+        $response = Gate::inspect($policy, $args);
 
-        if ($canCreate->denied()) {
-            throw new AppException($canCreate->status());
+        if ($response->denied()) {
+            throw new AppException($response->status());
         }
     }
 }

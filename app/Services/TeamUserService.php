@@ -30,7 +30,7 @@ final class TeamUserService implements TeamUserInterface
     {
         $team = Team::getTeam($team);
 
-        $this->testPolicy('joinTeam', $team);
+        $this->testPolicy('join', $team);
 
         /** @var User $currentUser */
         $currentUser = Auth::user();
@@ -46,7 +46,7 @@ final class TeamUserService implements TeamUserInterface
     {
         $team = Team::getTeam($team);
 
-        $this->testPolicy('leaveTeam', $team);
+        $this->testPolicy('leave', $team);
 
         /** @var User $currentUser */
         $currentUser = Auth::user();
@@ -66,7 +66,7 @@ final class TeamUserService implements TeamUserInterface
     {
         $team = Team::getTeam($team);
 
-        $this->testPolicy('removeUserFromTeam', [$team, $user]);
+        $this->testPolicy('remove-user', [$team, $user]);
 
         /** @var User $currentUser */
         $currentUser = Auth::user();
@@ -83,7 +83,7 @@ final class TeamUserService implements TeamUserInterface
     {
         $team = Team::getTeam($team);
 
-        $this->testPolicy('setUserRole', [$team, $user]);
+        $this->testPolicy('changeRole', [$team, $user]);
 
         /** @var User $currentUser */
         $currentUser = Auth::user();

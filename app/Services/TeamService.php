@@ -28,7 +28,7 @@ final class TeamService implements TeamInterface
 
     public function create(TeamData $data): Team
     {
-        $this->testPolicy('addTeam');
+        $this->testPolicy('create', Team::class);
 
         /** @var User $currentUser */
         $currentUser = Auth::user();
@@ -49,14 +49,14 @@ final class TeamService implements TeamInterface
     {
         $team = Team::getTeam($id);
 
-        $this->testPolicy('getUserTeam', $team);
+        $this->testPolicy('get', $team);
 
         return $team;
     }
 
     public function all(): Collection
     {
-        $this->testPolicy('getUserTeams');
+        $this->testPolicy('all', Team::class);
 
         /** @var User $currentUser */
         $currentUser = Auth::user();
@@ -68,7 +68,7 @@ final class TeamService implements TeamInterface
     {
         $team = Team::getTeam($team);
 
-        $this->testPolicy('updTeam', $team);
+        $this->testPolicy('update', $team);
 
         $team->update((array)$data);
 
@@ -86,7 +86,7 @@ final class TeamService implements TeamInterface
     {
         $team = Team::getTeam($team);
 
-        $this->testPolicy('delTeam', $team);
+        $this->testPolicy('delete', $team);
 
         $team->delete();
     }

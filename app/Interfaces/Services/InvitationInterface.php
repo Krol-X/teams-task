@@ -5,7 +5,7 @@ namespace App\Interfaces\Services;
 use App\Models\Team;
 use App\Models\TeamInvite;
 use App\Models\User;
-use Ramsey\Collection\Collection;
+use Illuminate\Support\Collection;
 
 /** Интерфейс сервиса приглашений */
 interface InvitationInterface

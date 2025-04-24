@@ -15,7 +15,7 @@ return new class extends Migration {
             $table->foreignId('invited_id')->constrained('users')->cascadeOnDelete();
             $table->foreignId('inviter_id')->constrained('users')->cascadeOnDelete();
             $table->foreignId('team_id')->constrained('teams')->cascadeOnDelete();
-            $table->tinyInteger('status')->default(\App\Enums\InviteStatusEnum::await);
+            $table->tinyInteger('status')->default(\App\Enums\InviteStatusEnum::Pending);
         });
     }
 
